@@ -1,0 +1,92 @@
+---
+Description: >
+  JPSalado / DevOpsCapstoneProject / ServerSide
+
+
+Parameters:
+  EnvironmentName:
+    Description: An environment name that will be prefixed to resource names
+    Type: String
+
+
+Resources:
+  EC2SecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow full outbound internet traffic and restrict inbound internet traffic to my IP and port 22
+      VpcId:
+        Fn::ImportValue: !Sub ${EnvironmentName}-VPCID
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 46.6.6.203/32
+      - IpProtocol: tcp
+        FromPort: 8080
+        ToPort: 8080
+        CidrIp: 46.6.6.203/32
+      - IpProtocol: tcp
+        FromPort: 32768
+        ToPort: 32768
+        CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: 0
+        ToPort: 65535
+        CidrIp: 0.0.0.0/0
+
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties: 
+      ImageId: ami-003634241a8fcdec0 # Ubuntu Server 18.04 LTS (HVM), SSD Volume Type (NOTE: deploy at us-west-2)
+      KeyName: DevOpsCapstoneProject
+      InstanceType: t2.micro
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          echo Configuring Firewall
+          sudo ufw allow OpenSSH
+          sudo ufw enable
+          echo Installing Java
+          sudo apt-get update
+          sudo apt install -y default-jdk
+          echo Installing Jenkins
+          wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
+          sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9B7D32F2D50582E6
+          sudo apt-get update
+          sudo apt install jenkins -y
+          sudo systemctl start jenkins
+          sudo systemctl enable jenkins
+          sudo ufw allow 8080
+          echo Installing Docker
+          sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+          sudo apt update
+          sudo apt install docker-ce -y
+          sudo usermod -aG docker ubuntu
+          echo Installing Tidy
+          sudo apt-get install -y tidy
+          echo Installing Hadolint
+          sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.17.5/hadolint-Linux-x86_64
+          sudo chmod +x /bin/hadolint
+      #    ufw status
+      #    ufw app list
+      #    sudo systemctl status jenkins
+      #    sudo systemctl status docker
+
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sdk"
+          Ebs:
+            VolumeSize: 10 # 10GB diskspace
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet:
+          - !Ref EC2SecGroup
+        SubnetId:
+          Fn::ImportValue: !Sub ${EnvironmentName}-PublicSubnet1
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${EnvironmentName}-EC2Instance
