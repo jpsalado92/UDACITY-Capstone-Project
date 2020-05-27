@@ -1,2 +1,2 @@
-# UDACITY Capstone Project 5
+# UDACITY DevOps Capstone Project
  
