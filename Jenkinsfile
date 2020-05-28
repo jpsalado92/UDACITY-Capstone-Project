@@ -8,16 +8,13 @@ pipeline {
          }
          stage('Build image') {
              steps {
-                 sh '''
-                     docker build -t jpsalado92/devops-capstone:latest .
-                 '''
+                 sh '.\BuildDocker.sh'
              }
          }
          stage('Push image') {
              steps {
                  sh '''
-                     cat secrets/token | docker login --username=jpsalado92 --password-stdin
-                     docker push jpsalado92/devops-capstone:latest
+                 .\UploadDocker.sh
                  '''
              }
          }
