@@ -8,13 +8,13 @@ pipeline {
          }
          stage('Build image') {
              steps {
-                 sh '.\BuildDocker.sh'
+                 sh './BuildDocker.sh'
              }
          }
          stage('Push image') {
              steps {
                  sh '''
-                 .\UploadDocker.sh
+                 ./UploadDocker.sh
                  '''
              }
          }
