@@ -3,7 +3,7 @@ set -ex
 # VARIABLES
 USERNAME=jpsalado92
 IMAGE=devops-capstone
-TO_VERSION=`cat TO_VERSION`
+TO_VERSION=blue
 FROM_VERSION=`cat FROM_VERSION`
 
 # COMMANDS

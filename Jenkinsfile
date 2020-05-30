@@ -3,20 +3,38 @@ pipeline {
      stages {
          stage('Linting') {
              steps {
-                 sh 'hadolint Dockerfile'
+                 sh '''
+                 hadolint Dockerfile'
+                 '''
              }
          }
          stage('Build image') {
              steps {
-                 sh './BuildDocker.sh'
+                 sh '''
+                 ShellScripts/BuildDocker.sh'
+                 '''
              }
          }
          stage('Push image') {
              steps {
                  sh '''
-                 ./UploadDocker.sh
+                 ShellScripts/UploadDocker.sh
                  '''
              }
          }
-     }
+         stage('Update Controller') {
+             steps {
+                 sh '''
+                 ShellScripts/UpdateController.sh
+                 '''
+             }
+         }
+         stage('Deploy Controller') {
+             steps {
+                 sh '''
+                 ShellScripts/DeployController.sh
+                 '''
+             }
+         }
+    }
 }
