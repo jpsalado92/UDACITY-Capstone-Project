@@ -1,0 +1,10 @@
+set -ex
+
+# VARIABLES
+USERNAME=jpsalado92
+IMAGE=devops-capstone
+TO_VERSION=blue
+FROM_VERSION=`cat FROM_VERSION`
+
+# COMMANDS
+docker build -t $USERNAME/$IMAGE:$TO_VERSION --build-arg FROM_VERSION=$FROM_VERSION .
