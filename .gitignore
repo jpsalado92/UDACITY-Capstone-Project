@@ -1,2 +1,7 @@
 
 .idea/*
+secrets/*
+CloudFormation/CloudDiagram.drawio
+Planteamiento.docx
+README2.md
+resources/Jenkins pipeline for blue green deployment using AWS EKS — Kubernetes — Docker.pdf
